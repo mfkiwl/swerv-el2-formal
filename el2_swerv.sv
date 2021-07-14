@@ -1353,7 +1353,6 @@ import el2_pkg::*;
    assign dma_axi_rready_int                   = pt.BUILD_AHB_LITE ? dma_axi_rready_ahb : dma_axi_rready;
 
 `ifdef RVFI
-  // only _lsu signals in below 3 assign statements are incorrect
   assign rvfi_rd_addr_wb  = rvfi_waddr_wb_dec;
   assign rvfi_rd_wdata_wb = rvfi_we_wb_dec ? rvfi_wdata_wb_dec : rvfi_wdata_lsu_dec;
   assign rvfi_rd_we_wb    = rvfi_we_wb_dec | rvfi_we_lsu_dec;
