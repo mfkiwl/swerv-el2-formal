@@ -921,8 +921,14 @@ import el2_pkg::*;
    logic [31:0] rvfi_mem_wdata_q;
    logic [31:0] rvfi_mem_addr_d;
    logic [31:0] rvfi_mem_addr_q;
-   logic [4:0] rvfi_rs1_addr_dec,
-   logic [4:0] rvfi_rs2_addr_dec,
+   logic [4:0]  rvfi_rs1_addr_dec;
+   logic [4:0]  rvfi_rs2_addr_dec;
+   logic [4:0]  rvfi_waddr_wb_dec;
+   logic        rvfi_we_wb_dec;
+   logic [31:0] rvfi_wdata_wb_dec;
+   logic [31:0] rvfi_alu_adder_result;
+   logic [31:0] rvfi_wdata_lsu_dec;
+   logic        rvfi_we_lsu_dec;
 `endif
    assign core_rst_l = rst_l & (dbg_core_rst_l | scan_mode);
    // fetch
@@ -955,6 +961,11 @@ import el2_pkg::*;
 `ifdef RVFI
                             .rvfi_rs1_addr_dec,
                             .rvfi_rs2_addr_dec,
+                            .rvfi_waddr_wb_dec,
+                            .rvfi_we_wb_dec,
+                            .rvfi_wdata_wb_dec,
+                            .rvfi_wdata_lsu_dec,
+                            .rvfi_we_lsu_dec,
 `endif
 
                             .*
@@ -985,6 +996,10 @@ import el2_pkg::*;
                             .lsu_axi_rdata(lsu_axi_rdata_int[63:0]),
                             .lsu_axi_rresp(lsu_axi_rresp_int[1:0]),
                             .lsu_axi_rlast(lsu_axi_rlast_int),
+
+`ifdef RVFI
+                            .rvfi_alu_adder_result,
+`endif
 
                             .*
 
@@ -1338,9 +1353,10 @@ import el2_pkg::*;
    assign dma_axi_rready_int                   = pt.BUILD_AHB_LITE ? dma_axi_rready_ahb : dma_axi_rready;
 
 `ifdef RVFI
-  assign rvfi_rd_addr_wb  = rf_waddr_wb;
-  assign rvfi_rd_wdata_wb = rf_we_wb ? rf_wdata_wb : rf_wdata_lsu;
-  assign rvfi_rd_we_wb    = rf_we_wb | rf_we_lsu;
+  // only _lsu signals in below 3 assign statements are incorrect
+  assign rvfi_rd_addr_wb  = rvfi_waddr_wb_dec;
+  assign rvfi_rd_wdata_wb = rvfi_we_wb_dec ? rvfi_wdata_wb_dec : rvfi_wdata_lsu_dec;
+  assign rvfi_rd_we_wb    = rvfi_we_wb_dec | rvfi_we_lsu_dec;
 
   localparam int RVFI_STAGES = 3;
 
@@ -1514,8 +1530,8 @@ import el2_pkg::*;
   // Memory adddress/write data available first cycle of ld/st instruction from register read
   always_comb begin
     if (instr_first_cycle_id) begin
-      rvfi_mem_addr_d  = alu_adder_result_ex;
-      rvfi_mem_wdata_d = lsu_wdata;
+      rvfi_mem_addr_d  = rvfi_alu_adder_result;
+      rvfi_mem_wdata_d = exu_lsu_rs2_d;
     end else begin
       rvfi_mem_addr_d  = rvfi_mem_addr_q;
       rvfi_mem_wdata_d = rvfi_mem_wdata_q;
@@ -1525,7 +1541,7 @@ import el2_pkg::*;
   // Capture read data from LSU when it becomes valid
   always_comb begin
     if (lsu_resp_valid) begin
-      rvfi_mem_rdata_d = rf_wdata_lsu;
+      rvfi_mem_rdata_d = rvfi_wdata_lsu_dec;
     end else begin
       rvfi_mem_rdata_d = rvfi_mem_rdata_q;
     end
