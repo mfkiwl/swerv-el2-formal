@@ -17,7 +17,7 @@ Adding RISC-V Formal Interface to Swerv-el2 processor
 
    - map  exu_i0_result_x = result_ex_i,
    - map lsu_wdata = exu_lsu_rs2_d
-11.- Substituted lsu_wdata with exu_lsu_rs2_d 
+11. Substituted lsu_wdata with exu_lsu_rs2_d 
    - lsu_addr_d contains the 32 bit computed address
    - map alu_adder_result_ex =  lsu_addr_d
 12. Added RVFI signal rvfi_alu_adder_result to el2_lsu
