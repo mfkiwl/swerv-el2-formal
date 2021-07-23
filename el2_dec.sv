@@ -318,7 +318,6 @@ import el2_pkg::*;
    output logic        rvfi_we_wb_dec;
    output logic [31:0] rvfi_wdata_wb_dec;
    output logic [31:0] rvfi_wdata_lsu_dec;
-   output logic        rvfi_we_lsu_dec;
 `endif
    );
 
@@ -461,8 +460,7 @@ import el2_pkg::*;
    assign rvfi_we_wb_dec = dec_i0_wen_r;
    assign rvfi_waddr_wb_dec = dec_i0_waddr_r;
    assign rvfi_wdata_wb_dec = dec_i0_wdata_r;
-   assign rvfi_wdata_lsu_dec = lsu_nonblock_load_data;
-   assign rvfi_we_lsu_dec = dec_nonblock_load_wen;
+   assign rvfi_wdata_lsu_dec = lsu_result_m;
 `endif
 
 endmodule // el2_dec
