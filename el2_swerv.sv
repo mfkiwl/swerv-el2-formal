@@ -928,7 +928,6 @@ import el2_pkg::*;
    logic [31:0] rvfi_wdata_wb_dec;
    logic [31:0] rvfi_alu_adder_result;
    logic [31:0] rvfi_wdata_lsu_dec;
-   logic        rvfi_we_lsu_dec;
 `endif
    assign core_rst_l = rst_l & (dbg_core_rst_l | scan_mode);
    // fetch
@@ -965,7 +964,6 @@ import el2_pkg::*;
                             .rvfi_we_wb_dec,
                             .rvfi_wdata_wb_dec,
                             .rvfi_wdata_lsu_dec,
-                            .rvfi_we_lsu_dec,
 `endif
 
                             .*
@@ -1355,7 +1353,7 @@ import el2_pkg::*;
 `ifdef RVFI
   assign rvfi_rd_addr_wb  = rvfi_waddr_wb_dec;
   assign rvfi_rd_wdata_wb = rvfi_we_wb_dec ? rvfi_wdata_wb_dec : rvfi_wdata_lsu_dec;
-  assign rvfi_rd_we_wb    = rvfi_we_wb_dec | rvfi_we_lsu_dec;
+  assign rvfi_rd_we_wb    = rvfi_we_wb_dec;
 
   localparam int RVFI_STAGES = 3;
 
